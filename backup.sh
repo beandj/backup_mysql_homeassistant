@@ -15,6 +15,7 @@ DUMP="N/A"
 SIZE="N/A"
 SEND="N/A"
 CLEAN="N/A"
+LAST="$(date +%Y-%m-%d)"
 
 # Função para logar mensagens
 log() {
@@ -28,13 +29,15 @@ send_mqtt() {
     local size="$3"
     local uploaded="$4"
     local clean="$5"
+    local last="$6"
     
     mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASS" -t "$MQTT_TOPIC/status" -m "{
         \"status\": \"$status\",
         \"dump\": \"$dump\",
         \"size\": \"$size\",
         \"upload\": \"$uploaded\",
-        \"clean\": \"$clean\"
+        \"clean\": \"$clean\",
+        \"last\": \"$last\"
     }"
 }
 
@@ -48,7 +51,7 @@ if mysqldump -u root "$DATABASE_NAME" > "$BACKUP_PATH/$BACKUP_FILENAME"; then
 else
     log "Erro ao realizar o backup do banco de dados."
     DUMP=Falha
-    send_mqtt "Falha" $DUMP $SIZE $SEND $CLEAN
+    send_mqtt "Falha" $DUMP $SIZE $SEND $CLEAN $LAST
     exit 1
 fi
 
@@ -59,7 +62,7 @@ if tar -czvf "$BACKUP_PATH/$ARCHIVE_FILENAME" -C "$BACKUP_PATH" "$BACKUP_FILENAM
 else
     log "Erro ao compactar o backup."
     SIZE=Falha
-    send_mqtt "Falha" $DUMP $SIZE $SEND $CLEAN
+    send_mqtt "Falha" $DUMP $SIZE $SEND $CLEAN $LAST
     exit 1
 fi
 
@@ -70,7 +73,7 @@ if rclone copy "$BACKUP_PATH/$ARCHIVE_FILENAME" "$RCLONE_REMOTE"; then
 else
     log "Erro ao enviar o backup para o Google Drive."
     SEND=Falha
-    send_mqtt "Falha" $DUMP $SIZE $SEND $CLEAN
+    send_mqtt "Falha" $DUMP $SIZE $SEND $CLEAN $LAST
     exit 1
 fi
 
@@ -88,9 +91,9 @@ if rclone delete "$RCLONE_REMOTE" --min-age 5d; then
 else
     log "Erro ao limpar os backups antigos no Google Drive."
     CLEAN=Falha
-    send_mqtt "Falha" $DUMP $SIZE $SEND $CLEAN
+    send_mqtt "Falha" $DUMP $SIZE $SEND $CLEAN $LAST
     exit 1
 fi
 
 log "Processo de backup concluído."
-send_mqtt "Sucesso" $DUMP $SIZE $SEND $CLEAN
+send_mqtt "Sucesso" $DUMP $SIZE $SEND $CLEAN $LAST

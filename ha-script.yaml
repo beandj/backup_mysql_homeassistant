@@ -119,4 +119,27 @@ sequence:
           }
         }
     action: mqtt.publish
+
+  # Sensor para o status do ultimo backup
+  - data:
+      topic: homeassistant/sensor/{{device_id}}/last/config
+      retain: true
+      payload: |
+        {
+          "name": "Last Status",
+          "object_id": "backup_{{device_id}}_last",
+          "unique_id": "backup_{{device_id}}_last",
+          "state_topic": "{{device_pub}}",
+          "icon": "{{ 'mdi:calendar-range' }}",
+          "value_template": "{{"{% if 'last' in value_json %}{{value_json.last}}{% else %}{{this.state}}{% endif %}"}}",
+          "device": {
+            "identifiers": [
+              "{{device_id}}"
+            ],
+            "model": "{{device_model}}",
+            "name": "{{device_name}}",
+            "manufacturer": "gmesquita"
+          }
+        }
+    action: mqtt.publish
 mode: single
