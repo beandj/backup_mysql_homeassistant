@@ -1,0 +1,122 @@
+alias: "Backup: MQTT Discovery"
+variables:
+  device_name: "MySQL Script"
+  device_model: "Backup MySQL Script"
+  device_id: mysql
+  device_pub: backup/{{device_id}}/status
+sequence:
+  # Sensor para o estado do backup
+  - data:
+      topic: homeassistant/sensor/{{device_id}}/status/config
+      retain: true
+      payload: |
+        {
+          "name": "Backup Status",
+          "object_id": "backup_{{device_id}}_status",
+          "unique_id": "backup_{{device_id}}_status",
+          "state_topic": "{{device_pub}}",
+          "icon": "{{ 'mdi:database-check' }}",
+          "value_template": "{{"{% if 'status' in value_json %}{{value_json.status}}{% else %}{{this.state}}{% endif %}"}}",
+          "device": {
+            "identifiers": [
+              "{{device_id}}"
+            ],
+            "model": "{{device_model}}",
+            "name": "{{device_name}}",
+            "manufacturer": "gmesquita"
+          }
+        }
+    action: mqtt.publish
+  
+  # Sensor para o status do dump
+  - data:
+      topic: homeassistant/sensor/{{device_id}}/dump/config
+      retain: true
+      payload: |
+        {
+          "name": "Dump Status",
+          "object_id": "backup_{{device_id}}_dump",
+          "unique_id": "backup_{{device_id}}_dump",
+          "state_topic": "{{device_pub}}",
+          "icon": "{{ 'mdi:database-export' }}",
+          "value_template": "{{"{% if 'dump' in value_json %}{{value_json.dump}}{% else %}{{this.state}}{% endif %}"}}",
+          "device": {
+            "identifiers": [
+              "{{device_id}}"
+            ],
+            "model": "{{device_model}}",
+            "name": "{{device_name}}",
+            "manufacturer": "gmesquita"
+          }
+        }
+    action: mqtt.publish
+  
+  # Sensor para o tamanho do backup
+  - data:
+      topic: homeassistant/sensor/{{device_id}}/size/config
+      retain: true
+      payload: |
+        {
+          "name": "Backup Size",
+          "object_id": "backup_{{device_id}}_size",
+          "unique_id": "backup_{{device_id}}_size",
+          "state_topic": "{{device_pub}}",
+          "icon": "{{ 'mdi:weight' }}",
+          "value_template": "{{"{% if 'size' in value_json %}{{value_json.size}}{% else %}{{this.state}}{% endif %}"}}",
+          "device": {
+            "identifiers": [
+              "{{device_id}}"
+            ],
+            "model": "{{device_model}}",
+            "name": "{{device_name}}",
+            "manufacturer": "gmesquita"
+          }
+        }
+    action: mqtt.publish
+  
+  # Sensor para o status do upload para o Google Drive
+  - data:
+      topic: homeassistant/sensor/{{device_id}}/upload/config
+      retain: true
+      payload: |
+        {
+          "name": "Upload Status",
+          "object_id": "backup_{{device_id}}_upload",
+          "unique_id": "backup_{{device_id}}_upload",
+          "state_topic": "{{device_pub}}",
+          "icon": "{{ 'mdi:cloud-upload' }}",
+          "value_template": "{{"{% if 'upload' in value_json %}{{value_json.upload}}{% else %}{{this.state}}{% endif %}"}}",
+          "device": {
+            "identifiers": [
+              "{{device_id}}"
+            ],
+            "model": "{{device_model}}",
+            "name": "{{device_name}}",
+            "manufacturer": "gmesquita"
+          }
+        }
+    action: mqtt.publish
+
+  # Sensor para o status da limpeza
+  - data:
+      topic: homeassistant/sensor/{{device_id}}/clean/config
+      retain: true
+      payload: |
+        {
+          "name": "Clean Status",
+          "object_id": "backup_{{device_id}}_clean",
+          "unique_id": "backup_{{device_id}}_clean",
+          "state_topic": "{{device_pub}}",
+          "icon": "{{ 'mdi:trash-can' }}",
+          "value_template": "{{"{% if 'clean' in value_json %}{{value_json.clean}}{% else %}{{this.state}}{% endif %}"}}",
+          "device": {
+            "identifiers": [
+              "{{device_id}}"
+            ],
+            "model": "{{device_model}}",
+            "name": "{{device_name}}",
+            "manufacturer": "gmesquita"
+          }
+        }
+    action: mqtt.publish
+mode: single
