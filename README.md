@@ -12,6 +12,10 @@ Este repositório contém scripts para realizar backups automáticos de um banco
   - Status do upload para o Google Drive
   - Status da limpeza de backups antigos
 
+## Sensores
+
+![sensores](imgs/sensores.jpg)
+
 ## Pré-requisitos
 
 Antes de usar os scripts, você precisará ter os seguintes programas instalados:
